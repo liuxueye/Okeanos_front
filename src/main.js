@@ -6,7 +6,7 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 
-axios.defaults.baseURL = 'https://private-anon-e0322a4a67-explorerservices.apiary-mock.com'
+// axios.defaults.baseURL = '/api2663'
 Vue.prototype.$http = axios
 
 Vue.use(ElementUI)

@@ -68,52 +68,61 @@ export default {
     };
   },
   methods: {
+    objectTo16(obj) {
+      let objTo16 = '';
+      let objStr = '';
+      // console.log(typeof obj);
+      if (typeof obj === "object") {
+        objStr = JSON.stringify(obj);
+      } else {
+        objStr = String(obj);
+      }
+      // console.log(objStr);
+      for (let i = 0; i < objStr.length; i++) {
+        if (objStr === "") {
+          return null;
+        } else {
+          objTo16 += objStr.charCodeAt(i).toString(16);
+        }
+      }
+      return objTo16;
+    },
+
+    judgePort(port) {
+      let baseURL1 = "";
+      console.log(port);
+      switch(port) {
+        case '2663': baseURL1 = "/api2663";
+        break;
+        case '2666': baseURL1 = "/api2666";
+        break;
+        case '2669': baseURL1 = "/api2669";
+        break;
+        case '2672': baseURL1 = "/api2672";
+        break;
+      }
+      console.log(baseURL1);
+      return baseURL1;
+    },
+
     async onSubmit() {
       let keyValue = {
         key: this.key,
         value: this.value,
       };
-      console.log(keyValue);
-      let keyValueTo16 = "";
-      for (let i = 0; i < keyValue.length; i++) {
-        if (keyValue === "") {
-          alert("There cannot be empty");
-        } else {
-          keyValueTo16 += keyValue.charCodeAt(i).toString(16);
-        }
-      }
-      let URL = this.portPost + "broadcast_tx_commit";
-      let showSendState = await this.$http.post(URL, {
-        data: {
-          tx: keyValueTo16,
-        },
-      });
+      let kv = this.$options.methods.objectTo16(keyValue)
+      let URL = this.$options.methods.judgePort(this.portPost) + "/broadcast_tx_commit?tx=0x" + kv;
+      // let URL1 = this.$options.methods.judgePort(this.portPost) + "/block_results?height=3";
+      // console.log(URL1);
+      let showSendState = await this.$http.get(URL);
+      this.send_textarea = JSON.stringify(showSendState);
     },
     async onQuery() {
-      let dataTo16 = "";
-      for (let i = 0; i < this.data.length; i++) {
-        if (this.data === "") {
-          alert("There cannot be empty");
-        } else {
-          dataTo16 += this.data.charCodeAt(i).toString(16);
-        }
-      }
-      // let URL = this.port + "/account/address";
-
-      // console.log(URL);
-      this.query_textarea = await this.$http.get(
-        "/account/address"
-        // {
-        //   params: {
-        //     address: "7334A4B2668DE1CEF0DD7DBA695C29449EC3A0D0",
-        //   },
-        // }
-        // {
-        //   params: {
-        //     data: "0x" + dataTo16,
-        //   },
-        // }
-      );
+      let data16 = this.$options.methods.objectTo16(this.data);
+      let baseURL2 = this.$options.methods.judgePort(this.portGet)
+      let URL =  baseURL2 + "/abci_query?data=0x" + data16;
+      let query_textarea = await this.$http.get(URL);
+      this.query_textarea = JSON.stringify(query_textarea);
     },
   },
 };
